@@ -9,8 +9,7 @@ availability for a multi-floor lot.
 as markdown if you would rather read it there; the PDF exists so the diagrams
 render without a plugin.
 
-Sections 3 and 5 are the important ones: how a spot gets chosen, and what
-happens when two cars arrive at once. Section 8 says what the design does not
+Section 8 says what the design does not
 cover.
 
 ## The database
