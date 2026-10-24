@@ -1,0 +1,6 @@
+stateDiagram-v2
+    [*] --> AVAILABLE
+    AVAILABLE --> OCCUPIED : checkIn
+    OCCUPIED --> AVAILABLE : checkOut
+    AVAILABLE --> OUT_OF_SERVICE : markOutOfService
+    OUT_OF_SERVICE --> AVAILABLE : restore

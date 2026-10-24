@@ -1,0 +1,47 @@
+erDiagram
+    PARKING_LOTS ||--o{ FLOORS : "has"
+    FLOORS ||--o{ PARKING_SPOTS : "has"
+    VEHICLES ||--o{ TICKETS : "parks"
+    PARKING_SPOTS ||--o{ TICKETS : "hosts"
+    TICKETS ||--o| PAYMENTS : "settled by"
+
+    PARKING_LOTS {
+        uuid id PK
+        text name
+    }
+    FLOORS {
+        uuid id PK
+        uuid lot_id FK
+        int floor_number
+    }
+    PARKING_SPOTS {
+        uuid id PK
+        uuid floor_id FK
+        text code
+        spot_type spot_type
+        smallint capacity "generated"
+        spot_status status
+    }
+    VEHICLES {
+        uuid id PK
+        text license_plate UK
+        vehicle_type vehicle_type
+    }
+    TICKETS {
+        uuid id PK
+        uuid vehicle_id FK
+        uuid spot_id FK
+        timestamptz entry_at
+        timestamptz exit_at
+        int billed_hours
+        bigint amount_paise
+        ticket_status status
+    }
+    PAYMENTS {
+        uuid id PK
+        uuid ticket_id FK
+        bigint amount_paise
+        payment_method method
+        payment_status status
+        text idempotency_key UK
+    }

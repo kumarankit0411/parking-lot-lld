@@ -1,0 +1,70 @@
+classDiagram
+    class ParkingLot {
+        +String id
+        +String name
+    }
+    class Floor {
+        +int floorNumber
+    }
+    class ParkingSpot {
+        +String id
+        +String code
+        +SpotType type
+        +SpotStatus status
+        +int capacity
+        +occupy()
+        +release()
+        +takeOutOfService()
+    }
+    class Vehicle {
+        +String id
+        +LicensePlate plate
+        +VehicleType type
+    }
+    class Ticket {
+        +String id
+        +Date entryAt
+        +Date exitAt
+        +int billedHours
+        +Money amount
+        +close()
+    }
+    class Payment {
+        +String id
+        +Money amount
+        +PaymentMethod method
+        +PaymentStatus status
+        +String idempotencyKey
+    }
+    class Money {
+        +int paise
+        +plus()
+        +times()
+    }
+    class LicensePlate {
+        +String value
+    }
+    class AllocationStrategy {
+        <<interface>>
+        +rankCandidates(spots, vehicleType)
+    }
+    class FeeCalculator {
+        <<interface>>
+        +calculate(ticket, exitAt)
+    }
+    class ParkingService {
+        +checkIn(command)
+        +checkOut(command)
+        +availability()
+    }
+
+    ParkingLot "1" --> "*" Floor
+    Floor "1" --> "*" ParkingSpot
+    Vehicle "1" --> "*" Ticket : stays
+    ParkingSpot "1" --> "*" Ticket : history
+    Ticket "1" --> "0..1" Payment
+    Ticket --> Money
+    Vehicle --> LicensePlate
+    ParkingService --> AllocationStrategy
+    ParkingService --> FeeCalculator
+    ParkingService ..> Ticket

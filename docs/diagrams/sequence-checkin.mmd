@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant S as ParkingService
+    participant T as TicketRepo
+    participant V as VehicleRepo
+    participant A as AllocationStrategy
+    participant R as SpotRepo
+
+    C->>S: POST /check-ins {plate, vehicleType}
+    S->>T: findActiveByPlate
+    T-->>S: none
+    S->>V: upsert(vehicle)
+    V-->>S: vehicle
+    S->>A: rankCandidates(free, type)
+    A-->>S: [F1-C01, F1-C02, F1-L01]
+    loop until one claim succeeds
+        S->>R: tryMarkOccupied(id)
+        alt claimed
+            R-->>S: true
+        else lost the race
+            R-->>S: false
+        end
+    end
+    S->>T: insert(ticket)
+    T-->>S: ok
+    S-->>C: 201 {ticketId, spotCode, entryAt}

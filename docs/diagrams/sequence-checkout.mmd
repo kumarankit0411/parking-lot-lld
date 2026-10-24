@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant S as ParkingService
+    participant T as TicketRepo
+    participant F as FeeCalculator
+    participant R as SpotRepo
+    participant P as PaymentRepo
+
+    C->>S: POST /check-outs {ticketId, method}
+    S->>T: findById(id)
+    T-->>S: ACTIVE ticket
+    S->>F: calculate(ticket)
+    F-->>S: {amount, billedHours}
+    S->>T: tryClose(ticket, exitAt)
+    alt close won
+        T-->>S: true
+        S->>R: markAvailable
+        S->>P: insert(payment)
+        P-->>S: ok
+        S-->>C: 200 receipt
+    else already closed
+        T-->>S: false
+        S-->>C: 200 existing receipt
+    end
