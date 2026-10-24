@@ -1,79 +1,58 @@
 # Smart parking lot - LLD assignment
 
-Entry/exit handling, spot allocation and fee calculation for a multi-floor lot.
-The design writeup lives here: **[docs/DESIGN.md](docs/DESIGN.md)**.
-The schema it targets is in [docs/schema.sql](docs/schema.sql).
+Design for a multi-floor parking lot: entry and exit handling, spot allocation
+by vehicle size, fee calculation, and live availability.
 
-## Running it
+## Start here
+
+| What | Where |
+|---|---|
+| Design document (main deliverable) | [docs/DESIGN.pdf](docs/DESIGN.pdf), or [docs/DESIGN.md](docs/DESIGN.md) for the source |
+| Database design | [docs/schema.sql](docs/schema.sql) |
+| Implementation | [src/service/parkingService.ts](src/service/parkingService.ts) |
+| Tests | [tests/](tests/) |
+
+The PDF and the markdown are the same document. The PDF is there so the
+diagrams render without a Mermaid plugin.
+
+## Where to look
+
+If you only have ten minutes:
+
+1. `docs/DESIGN.md` sections 3 and 5. Allocation and concurrency are the two
+   decisions the rest of the design hangs off.
+2. `docs/schema.sql`. The two partial unique indexes on `tickets` are what make
+   double booking impossible, whatever the application code does.
+3. `tests/concurrency.test.ts`. The races are forced on purpose rather than
+   described.
+
+## What is implemented
+
+- Check-in, check-out and availability reporting.
+- Best-fit allocation, with a retry when a claim loses a race.
+- Hourly billing with rounding, a one hour minimum, a daily cap and a grace
+  period.
+- Spot, ticket and payment state changes enforced inside the entities.
+- In-memory repositories that apply the same uniqueness rules as the SQL.
+- Tests for lost claims, duplicate entry, double checkout and payment failure.
+
+## Running the tests
 
 ```bash
 npm install
-npm test          # unit + concurrency suite
-npm run typecheck # strict TS, no emit
+npm test
+npm run typecheck
 ```
 
-Node 20 or newer. No runtime dependencies - only TypeScript and Vitest.
+Node 20 or newer. TypeScript and Vitest are the only dependencies.
 
 There is no application entrypoint and no server. The only way to exercise the
 code is the test suite, and the repositories are in memory, so nothing survives
 the process.
 
-## What is actually implemented
-
-- `checkIn` / `checkOut` / `availability` in `src/service/parkingService.ts`
-- Best-fit allocation with a ranked candidate list and claim retries
-- Hourly billing with rounding, minimum hour, daily cap, grace period
-- Spot, ticket and payment state transitions inside the entities
-- In-memory repositories that enforce the same uniqueness rules as the SQL
-  partial indexes, so the service cannot rely on single-threaded behaviour
-- Tests that force the races on purpose: lost claims, duplicate entry,
-  double checkout, and a failed ticket write that would otherwise leak a spot
-
 ## What is not here
 
-There is no HTTP layer, no database driver, no payment gateway and no Docker
-setup. Each of those is a translation of something that is already designed, and
-adding them would have meant less time on the parts that are actually graded:
-the model, the allocation rule, the fee rule, and the failure cases.
-
-## Layout
-
-```
-src/domain/       entities, value objects, errors
-src/allocation/   ranking strategies
-src/pricing/      rate table, fee calculator
-src/ports/        interfaces the service depends on
-src/infra/        in-memory implementations
-src/service/      orchestration
-tests/            unit and concurrency tests
-docs/             design document, SQL schema
-docs/diagrams/    diagram sources (.mmd) and exported PNGs
-```
-
-## Diagrams and PDF
-
-The design doc uses PNGs, so the diagrams render on GitHub, in VS Code preview
-and in a PDF export without any extra tooling. The Mermaid sources are next to
-them in `docs/diagrams/`.
-
-`docs/DESIGN.pdf` is a pre-built export (13 pages) using `docs/pdf.css`. To
-rebuild it after editing the doc:
-
-```bash
-npx -y md-to-pdf --css docs/pdf.css docs/DESIGN.md
-```
-
-To change a diagram and regenerate it:
-
-```bash
-npx -y @mermaid-js/mermaid-cli \
-  -i docs/diagrams/class-diagram.mmd \
-  -o docs/diagrams/class-diagram.png \
-  -b white -s 2
-```
-
-## Rates
-
-INR, stored as integer paise. Motorcycle ₹10/h (₹100 cap), car ₹30/h (₹300),
-bus ₹60/h (₹600). They live in `DEFAULT_PRICING` and in the seed data at the
-bottom of `schema.sql`; a test keeps the two honest.
+No HTTP layer, no database driver, no payment gateway, no Docker setup. The
+design covers each of them; the code stops at the parts that are specific to
+this problem - the model, the allocation rule, the fee rule and the failure
+cases.
