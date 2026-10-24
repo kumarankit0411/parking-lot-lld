@@ -407,6 +407,10 @@ in-process listener in `src/ports/events.ts` only works for one instance.
 
 Not built:
 
+This repository is not a runnable service: no entrypoint, no HTTP layer, no
+database connection. It is verified through the test suite against in-memory
+repositories; `schema.sql` is the target for a real deployment.
+
 - Reservations and a waiting queue. New state the brief does not describe.
 - Payment gateway. The model supports PENDING to SUCCESS; the code stops at
   recording a success.

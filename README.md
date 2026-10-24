@@ -14,6 +14,10 @@ npm run typecheck # strict TS, no emit
 
 Node 20 or newer. No runtime dependencies - only TypeScript and Vitest.
 
+There is no application entrypoint and no server. The only way to exercise the
+code is the test suite, and the repositories are in memory, so nothing survives
+the process.
+
 ## What is actually implemented
 
 - `checkIn` / `checkOut` / `availability` in `src/service/parkingService.ts`
