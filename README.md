@@ -1,7 +1,7 @@
 # Smart parking lot - LLD assignment
 
 Entry/exit handling, spot allocation and fee calculation for a multi-floor lot.
-The design writeup is the main deliverable: **[docs/DESIGN.md](docs/DESIGN.md)**.
+The design writeup lives here: **[docs/DESIGN.md](docs/DESIGN.md)**.
 The schema it targets is in [docs/schema.sql](docs/schema.sql).
 
 ## Running it
